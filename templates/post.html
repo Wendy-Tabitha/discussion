@@ -5,13 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <title>Forum - Posts</title>
 </head>
 
 <body>
     <header>
         <div class="logo">
-            <a href="/post" class="logo-link">Forum</a>
+            <a href="/" class="logo-link">Forum</a>
         </div>
         <div class="search-bar">
             <input type="text" placeholder="Search...">
@@ -25,16 +26,15 @@
         <aside class="sidebar">
             <h3>Categories</h3>
             <ul>
-                <li><a href="#" onclick="filterByCategory('all')">All Posts</a></li>
-                <li><a href="#" onclick="filterByCategory('technology')">Technology</a></li>
-                <li><a href="#" onclick="filterByCategory('general')">General</a></li>
-                <li><a href="#" onclick="filterByCategory('lifestyle')">Lifestyle</a></li>
-                <li><a href="#" onclick="filterByCategory('entertainment')">Entertainment</a></li>
-                <li><a href="#" onclick="filterByCategory('gaming')">Gaming</a></li>
-                <li><a href="#" onclick="filterByCategory('food')">Food</a></li>
-                <li><a href="#" onclick="filterByCategory('business')">Business</a></li>
-                <li><a href="#" onclick="filterByCategory('religion')">Religion</a></li>
-                <li><a href="#" onclick="filterByCategory('health')">Health</a></li>
+                <li><a href="/filter?category=technology">Technology</a></li>
+                <li><a href="/filter?category=general">General</a></li>
+                <li><a href="/filter?category=lifestyle">Lifestyle</a></li>
+                <li><a href="/filter?category=entertainment">Entertainment</a></li>
+                <li><a href="/filter?category=gaming">Gaming</a></li>
+                <li><a href="/filter?category=food">Food</a></li>
+                <li><a href="/filter?category=business">Business</a></li>
+                <li><a href="/filter?category=religion">Religion</a></li>
+                <li><a href="/filter?category=health">Health</a></li>
             </ul>
             <div class="sidebar-footer">
                 <a href="/" class="logout-link">Logout</a>
@@ -74,19 +74,53 @@
             </div>
 
             <!-- Posts List (Shown by default) -->
-            <h1 id="postsHeading">All Posts</h1>
-            <div id="posts">
-                {{if .Posts}}
-                {{range .Posts}}
-                <div class="post" data-category="{{.Category}}">
-                    <h3>{{.Title}}</h3>
-                    <p>{{.Content}}</p>
-                    <p>Category: {{.Category}}</p>
+            <div id="postsList">
+                <div class="posts-header">
+                    <h1>All Posts</h1>
+                    <div id="currentCategory"></div>
                 </div>
-                {{end}}
-                {{else}}
-                <p>No posts available.</p>
-                {{end}}
+
+                <div id="posts">
+                    {{range .Posts}}
+                    <div class="post" data-category="{{.Category}}">
+                        <h3>{{.Title}}</h3>
+                        <p>{{.Content}}</p>
+                        <p>Category: {{.Category}}</p>
+
+                        <!-- Like Button and Count -->
+                        <button class="like-button" onclick="toggleLike(this)">Like</button>
+                        <p class="like-count">0 Likes</p>
+                        <!-- <button class="like-button" onclick="toggleLike(this)">
+                                <i class="fas fa-thumbs-up"></i> Like
+                            </button> -->
+
+                        <button class="comment-button" onclick="toggleCommentForm(this)">
+                            <i class="fas fa-comment"></i> Comment
+                        </button>
+
+                        <div class="comment-form" style="display: none;">
+                            <textarea placeholder="Write your comment..." rows="3"></textarea>
+                            <button class="submit-comment">Submit</button>
+                            <button class="cancel-comment" onclick="toggleCommentForm(this)">Cancel</button>
+                        </div>
+                    </div>
+                    {{else}}
+                    <p>No posts available.</p>
+                    {{end}}
+                </div>
+
+                <div id="posts">
+                    {{range .Posts}}
+                    <div class="post" data-category="{{.Category}}">
+                        <p>{{.ID}}</p>
+                        <h3>{{.Title}}</h3>
+                        <p>{{.Content}}</p>
+                        <p>Category: {{.Category}}</p>
+                    </div>
+                    {{else}}
+                    <p>No posts available.</p>
+                    {{end}}
+                </div>
             </div>
         </main>
     </div>
@@ -94,23 +128,51 @@
     <script>
         function toggleCreatePost() {
             const createPostForm = document.getElementById('createPostForm');
-            const postsList = document.getElementById('posts');
-            const postsHeading = document.getElementById('postsHeading');
+            const postsList = document.getElementById('postsList');
 
             if (createPostForm.style.display === 'none') {
                 createPostForm.style.display = 'block';
                 postsList.style.display = 'none';
-                postsHeading.style.display = 'none'; // Hide the heading when the form is shown
             } else {
                 createPostForm.style.display = 'none';
                 postsList.style.display = 'block';
-                postsHeading.style.display = 'block'; // Show the heading when the form is hidden
             }
         }
 
+        function toggleCommentForm(button) {
+            const commentForm = button.closest('.post').querySelector('.comment-form');
+
+            // Toggle form visibility
+            if (commentForm.style.display === 'none' || commentForm.style.display === '') {
+                commentForm.style.display = 'block';
+            } else {
+                commentForm.style.display = 'none';
+            }
+        }
+
+        function toggleLike(button) {
+            const likeCountElement = button.nextElementSibling;
+            let likeCount = parseInt(likeCountElement.textContent.split(' ')[0]);
+            let isLiked = button.classList.contains('liked');
+
+            if (isLiked) {
+                likeCount--;
+                button.classList.remove('liked');
+                button.innerHTML = '<i class="fas fa-thumbs-up"></i> Like';
+            } else {
+                likeCount++;
+                button.classList.add('liked');
+                button.innerHTML = '<i class="fas fa-thumbs-up"></i> Liked';
+            }
+
+            likeCountElement.textContent = likeCount + " Likes";
+        }
+
+
+
         function filterByCategory(category) {
             const posts = document.querySelectorAll('.post');
-            const postsHeading = document.getElementById('postsHeading');
+            const currentCategory = document.getElementById('currentCategory');
 
             posts.forEach(post => {
                 if (category === 'all' || post.getAttribute('data-category').toLowerCase() === category.toLowerCase()) {
@@ -120,14 +182,14 @@
                 }
             });
 
-            // Update the heading based on the selected category
+            const h1 = document.querySelector('main h1');
             if (category === 'all') {
-                postsHeading.textContent = 'All Posts';
+                h1.textContent = 'All Posts';
             } else {
-                postsHeading.textContent = category.charAt(0).toUpperCase() + category.slice(1) + ' Posts';
+                h1.textContent = category.charAt(0).toUpperCase() + category.slice(1) + ' Posts';
             }
 
-            return false; // Prevent default link behavior
+            return false;
         }
     </script>
 </body>
