@@ -13,6 +13,7 @@ type Post struct {
 	Title    string
 	Content  string
 	Category string
+	Comments []Comment // Add this field to store comments for each post
 }
 
 type Comment struct {
