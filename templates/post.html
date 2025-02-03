@@ -82,6 +82,28 @@
                     <h3>{{.Title}}</h3>
                     <p>{{.Content}}</p>
                     <p>Category: {{.Category}}</p>
+
+                    <!-- Comments Section -->
+                    <div class="comments">
+                        <h4>Comments</h4>
+                        <div class="comment-list" id="comment-list-{{.ID}}">
+                            {{if .Comments}}
+                            {{range .Comments}}
+                            <div class="comment">
+                                <p>{{.Content}} - <small>User {{.UserID}}</small></p>
+                            </div>
+                            {{end}}
+                            {{else}}
+                            <p>No comments yet.</p>
+                            {{end}}
+                        </div>
+
+                        <!-- Comment Form -->
+                        <form method="POST" action="/comment/{{.ID}}">
+                            <textarea name="content" required placeholder="Add a comment"></textarea><br>
+                            <button type="submit">Post Comment</button>
+                        </form>
+                    </div>
                 </div>
                 {{end}}
                 {{else}}
