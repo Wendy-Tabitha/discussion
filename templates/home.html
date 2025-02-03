@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/style.css">
-    <title>Forum - Home</title>
+    <title>Forum - Posts</title>
 </head>
+
 <body>
     <header>
         <div class="logo">
@@ -16,10 +18,15 @@
             <button type="button">Search</button>
         </div>
         <nav>
+            {{if .IsLoggedIn}}
+            <a href="#" class="auth-button create-post" onclick="toggleCreatePost()">Create Post</a>
+            {{else}}
             <a href="/login" class="auth-button login">Login</a>
             <a href="/register" class="auth-button register">Register</a>
+            {{end}}
         </nav>
     </header>
+
     <div class="container">
         <aside class="sidebar">
             <h3>Categories</h3>
@@ -35,46 +42,127 @@
                 <li><a href="#" onclick="filterByCategory('religion')">Religion</a></li>
                 <li><a href="#" onclick="filterByCategory('health')">Health</a></li>
             </ul>
+            <div class="sidebar-footer">
+                {{if .IsLoggedIn}}
+                <a href="/logout" class="logout-link">Logout</a>
+                {{end}}
+            </div>
         </aside>
+
         <main>
+            <!-- Create Post Form (Shown only if logged in) -->
+            {{if .IsLoggedIn}}
+            <div id="createPostForm" style="display: none;">
+                <h1>Create a New Post</h1>
+                <form method="POST" action="/post">
+                    <label for="title">Title:</label>
+                    <input type="text" id="title" name="title" required>
+                    <br>
+
+                    <label for="content">Content:</label>
+                    <textarea id="content" name="content" required></textarea>
+                    <br>
+
+                    <label for="category">Category:</label>
+                    <select id="category" name="category" required>
+                        <option value="">Select a category</option>
+                        <option value="technology">Technology</option>
+                        <option value="general">General</option>
+                        <option value="lifestyle">Lifestyle</option>
+                        <option value="entertainment">Entertainment</option>
+                        <option value="gaming">Gaming</option>
+                        <option value="food">Food</option>
+                        <option value="business">Business</option>
+                        <option value="religion">Religion</option>
+                        <option value="health">Health</option>
+                    </select>
+                    <br>
+
+                    <button type="submit">Post</button>
+                    <button type="button" onclick="toggleCreatePost()">Cancel</button>
+                </form>
+            </div>
+            {{end}}
+
+            <!-- Posts List -->
             <h1 id="postsHeading">All Posts</h1>
             <div id="posts">
+                {{if .Posts}}
                 {{range .Posts}}
-                    <div class="post" data-category="{{.Category}}">
-                        <h3>{{.Title}}</h3>
-                        <p>{{.Content}}</p>
-                        <p>Category: {{.Category}}</p>
+                <div class="post" data-category="{{.Category}}">
+                    <h3>{{.Title}}</h3>
+                    <p>{{.Content}}</p>
+                    <p>Category: {{.Category}}</p>
+
+                    <!-- Comments Section -->
+                    <div class="comments">
+                        <h4>Comments</h4>
+                        <div class="comment-list" id="comment-list-{{.ID}}">
+                            {{if .Comments}}
+                            {{range .Comments}}
+                            <div class="comment">
+                                <p>{{.Content}} - <small>User {{.UserID}}</small></p>
+                            </div>
+                            {{end}}
+                            {{else}}
+                            <p>No comments yet.</p>
+                            {{end}}
+                        </div>
+
+                        <!-- Comment Form -->
+                        <form method="POST" action="/comment/{{.ID}}">
+                            <textarea name="content" required placeholder="Add a comment"></textarea><br>
+                            <button type="submit">Post Comment</button>
+                        </form>
                     </div>
+                </div>
+                {{end}}
                 {{else}}
-                    <p>No posts available.</p>
+                <p>No posts available.</p>
                 {{end}}
             </div>
         </main>
     </div>
 
     <script>
+        function toggleCreatePost() {
+            const createPostForm = document.getElementById('createPostForm');
+            const postsList = document.getElementById('posts');
+            const postsHeading = document.getElementById('postsHeading');
+
+            if (createPostForm.style.display === 'none') {
+                createPostForm.style.display = 'block';
+                postsList.style.display = 'none';
+                postsHeading.style.display = 'none'; // Hide the heading when the form is shown
+            } else {
+                createPostForm.style.display = 'none';
+                postsList.style.display = 'block';
+                postsHeading.style.display = 'block'; // Show the heading when the form is hidden
+            }
+        }
+
         function filterByCategory(category) {
             const posts = document.querySelectorAll('.post');
-            
+            const postsHeading = document.getElementById('postsHeading');
+
             posts.forEach(post => {
-                if (category === 'all') {
-                    post.style.display = 'block';  // Show all posts when 'all' is selected
-                } else if (post.getAttribute('data-category').toLowerCase() === category.toLowerCase()) {
+                if (category === 'all' || post.getAttribute('data-category').toLowerCase() === category.toLowerCase()) {
                     post.style.display = 'block';
                 } else {
                     post.style.display = 'none';
                 }
             });
 
-            const h1 = document.querySelector('main h1');
+            // Update the heading based on the selected category
             if (category === 'all') {
-                h1.textContent = 'All Posts';
+                postsHeading.textContent = 'All Posts';
             } else {
-                h1.textContent = category.charAt(0).toUpperCase() + category.slice(1) + ' Posts';
+                postsHeading.textContent = category.charAt(0).toUpperCase() + category.slice(1) + ' Posts';
             }
 
-            return false;  // Prevent default link behavior
+            return false; // Prevent default link behavior
         }
     </script>
 </body>
+
 </html>
