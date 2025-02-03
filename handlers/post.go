@@ -63,7 +63,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
     }
 
     // Render the post page with posts and comments
-    tmpl, err := template.ParseFiles("templates/post.html")
+    tmpl, err := template.ParseFiles("templates/home.html")
     if err != nil {
         http.Error(w, "Error parsing file", http.StatusInternalServerError)
         return
