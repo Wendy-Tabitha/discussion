@@ -11,7 +11,11 @@
         <h1>{{.StatusCode}}</h1>
         <p>{{.ErrorMessage}}</p>
 
+        {{if .IsLoggedIn}}
+        <a href="/post" class="back-link">← Back to Postpage</a>
+        {{else}}
         <a href="/" class="back-link">← Back to Homepage</a>
+        {{end}}
     </div>
 </body>
 </html>

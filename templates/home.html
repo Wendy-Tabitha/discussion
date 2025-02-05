@@ -11,9 +11,15 @@
 
 <body>
     <header>
+        {{if .IsLoggedIn}}
+        <div class="logo">
+            <a href="/post" class="logo-link">Forum</a>
+        </div>
+        {{else}}
         <div class="logo">
             <a href="/" class="logo-link">Forum</a>
         </div>
+        {{end}}
         <div class="search-bar">
             <input type="text" placeholder="Search...">
             <button type="button">Search</button>
