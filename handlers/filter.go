@@ -19,7 +19,7 @@ func FilterHandler(w http.ResponseWriter, r *http.Request) {
 
 		rows, err := db.Query(query, args...)
 		if err != nil {
-			RenderError(w, "Error fetching posts", http.StatusInternalServerError)
+			RenderError(w,r, "Error fetching posts", http.StatusInternalServerError)
 			return
 		}
 		defer rows.Close()
@@ -28,7 +28,7 @@ func FilterHandler(w http.ResponseWriter, r *http.Request) {
 		for rows.Next() {
 			var post Post
 			if err := rows.Scan(&post.ID, &post.Title, &post.Content, &post.Categories, &post.Username); err != nil {
-				RenderError(w, "Error scanning posts", http.StatusInternalServerError)
+				RenderError(w,r, "Error scanning posts", http.StatusInternalServerError)
 				return
 			}
 			posts = append(posts, post)
@@ -36,7 +36,7 @@ func FilterHandler(w http.ResponseWriter, r *http.Request) {
 
 		tmpl, err := template.ParseFiles("templates/home.html")
 		if err != nil {
-			RenderError(w, "Error parsing file", http.StatusInternalServerError)
+			RenderError(w,r, "Error parsing file", http.StatusInternalServerError)
 			return
 		}
 		tmpl.Execute(w, map[string]interface{}{
@@ -45,5 +45,5 @@ func FilterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	RenderError(w, "Invalid request method", http.StatusMethodNotAllowed)
+	RenderError(w,r, "Invalid request method", http.StatusMethodNotAllowed)
 }
