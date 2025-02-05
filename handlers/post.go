@@ -17,7 +17,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 				Name:     "session_id",
 				Value:    "",
 				Path:     "/",
-				Expires:  time.Unix(0, 0), // Expire immediately
+				Expires:  time.Unix(0, 0),
 				MaxAge:   -1,
 				HttpOnly: true,
 			})
@@ -30,23 +30,36 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		title := r.FormValue("title")
 		content := r.FormValue("content")
-		category := r.FormValue("category")
+		categories := r.Form["category"] // Get multiple categories
 
 		// Insert the new post into the database
-		_, err := db.Exec("INSERT INTO posts (user_id, title, content, category) VALUES (?, ?, ?, ?)", userID, title, content, category)
+		result, err := db.Exec("INSERT INTO posts (user_id, title, content) VALUES (?, ?, ?)", userID, title, content)
 		if err != nil {
 			http.Error(w, "Error creating post", http.StatusInternalServerError)
 			return
 		}
 
-		// Redirect back to the home page after creating the post
+		postID, err := result.LastInsertId()
+		if err != nil {
+			http.Error(w, "Error retrieving post ID", http.StatusInternalServerError)
+			return
+		}
+
+		// Insert categories into the database
+		for _, category := range categories {
+			_, err = db.Exec("INSERT INTO post_categories (post_id, category) VALUES (?, ?)", postID, category)
+			if err != nil {
+				http.Error(w, "Error inserting categories", http.StatusInternalServerError)
+				return
+			}
+		}
+
 		http.Redirect(w, r, "/post", http.StatusSeeOther)
 		return
 	}
 
-	// Query to fetch all posts along with the user's name and creation time, ordered by created_at descending
-	rows, err := db.Query(`SELECT p.id, p.title, p.content, p.category, u.username, 
-	p.created_at FROM posts p JOIN users u ON p.user_id = u.id ORDER BY p.created_at DESC`) // Order by created_at descending
+	rows, err := db.Query(`SELECT p.id, p.title, p.content, GROUP_CONCAT(pc.category) as categories, u.username, 
+	p.created_at FROM posts p JOIN users u ON p.user_id = u.id LEFT JOIN post_categories pc ON p.id = pc.post_id GROUP BY p.id ORDER BY p.created_at DESC`)
 	if err != nil {
 		http.Error(w, "Error fetching posts", http.StatusInternalServerError)
 		return
@@ -56,14 +69,13 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	var posts []Post
 	for rows.Next() {
 		var post Post
-		if err := rows.Scan(&post.ID, &post.Title, &post.Content, &post.Category, &post.Username, &post.CreatedAt); err != nil {
+		if err := rows.Scan(&post.ID, &post.Title, &post.Content, &post.Categories, &post.Username, &post.CreatedAt); err != nil {
 			http.Error(w, "Error scanning posts", http.StatusInternalServerError)
 			return
 		}
 		posts = append(posts, post)
 	}
 
-	// Render the home page with posts
 	tmpl, err := template.ParseFiles("templates/home.html")
 	if err != nil {
 		http.Error(w, "Error parsing file", http.StatusInternalServerError)
@@ -71,6 +83,6 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	tmpl.Execute(w, map[string]interface{}{
 		"Posts":      posts,
-		"IsLoggedIn": userID != "", // Check if user is logged in
+		"IsLoggedIn": userID != "",
 	})
 }

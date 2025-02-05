@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Font Awesome -->
     <title>Forum - Posts</title>
 </head>
 
@@ -48,13 +47,12 @@
                 <li><a href="#" onclick="filterByCategory('jobs')">Jobs</a></li>
             </ul>
             <div class="sidebar-footer">
-                {{if .IsLoggedIn}} <!-- Only show logout link if user is logged in -->
+                {{if .IsLoggedIn}} 
                 <a href="/logout" class="logout-link">Logout</a>
                 {{end}}
             </div>
         </aside>
         <main>
-            <!-- Create Post Form (Shown only if logged in) -->
             {{if .IsLoggedIn}}
             <div id="createPostForm" style="display: none;">
                 <h1>Create a New Post</h1>
@@ -68,7 +66,7 @@
                     <br>
 
                     <label for="category">Category:</label>
-                    <div id="category" name="category" class="checkbox-group">
+                    <div id="category" class="checkbox-group">
                         <label><input type="checkbox" name="category" value="technology"> Technology</label>
                         <label><input type="checkbox" name="category" value="general"> General</label>
                         <label><input type="checkbox" name="category" value="lifestyle"> Lifestyle</label>
@@ -91,19 +89,18 @@
             </div>
             {{end}}
 
-            <!-- Posts List -->
             <h1 id="postsHeading">All Posts</h1>
             <div id="posts">
                 {{if .Posts}}
                 {{range .Posts}}
-                <div class="post" data-category="{{.Category}}">
+                <div class="post" data-category="{{.Categories}}">
                     <p class="posted-on">Posted on: {{.CreatedAt}}</p>
                     <strong>
                         <p>{{.Username}}</p>
                     </strong>
                     <h3>{{.Title}}</h3>
                     <p>{{.Content}}</p>
-                    <p>Category: {{.Category}}</p>
+                    <p>Categories: {{.Categories}}</p>
                     <div class="post-actions">
                         <button class="like-button" onclick="toggleLike('{{.ID}}', true)">
                             <i class="fas fa-thumbs-up"></i> Like
@@ -140,11 +137,11 @@
             if (createPostForm.style.display === 'none') {
                 createPostForm.style.display = 'block';
                 postsList.style.display = 'none';
-                postsHeading.style.display = 'none'; // Hide the heading when the form is shown
+                postsHeading.style.display = 'none'; 
             } else {
                 createPostForm.style.display = 'none';
                 postsList.style.display = 'block';
-                postsHeading.style.display = 'block'; // Show the heading when the form is hidden
+                postsHeading.style.display = 'block'; 
             }
         }
 
@@ -153,21 +150,21 @@
             const postsHeading = document.getElementById('postsHeading');
 
             posts.forEach(post => {
-                if (category === 'all' || post.getAttribute('data-category').toLowerCase() === category.toLowerCase()) {
+                const postCategories = post.getAttribute('data-category').toLowerCase().split(',');
+                if (category === 'all' || postCategories.includes(category.toLowerCase())) {
                     post.style.display = 'block';
                 } else {
                     post.style.display = 'none';
                 }
             });
 
-            // Update the heading based on the selected category
             if (category === 'all') {
                 postsHeading.textContent = 'All Posts';
             } else {
                 postsHeading.textContent = category.charAt(0).toUpperCase() + category.slice(1) + ' Posts';
             }
 
-            return false; // Prevent default link behavior
+            return false; 
         }
 
         function toggleCommentForm(postId) {
