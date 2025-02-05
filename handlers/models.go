@@ -14,7 +14,7 @@ type Post struct {
 	UserID   string 
 	Title    string
 	Content  string
-	Category string
+	Categories string // Changed to string to hold multiple categories
 	Username string 
 	CreatedAt string
 }

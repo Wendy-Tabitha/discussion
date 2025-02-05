@@ -19,7 +19,7 @@ func InitDB() {
 	// Create tables
 	createTable := `
     CREATE TABLE IF NOT EXISTS users (
-        id TEXT PRIMARY KEY,  -- UUID as TEXT
+        id TEXT PRIMARY KEY,
         email TEXT UNIQUE,
         username TEXT,
         password TEXT
@@ -27,18 +27,23 @@ func InitDB() {
 
     CREATE TABLE IF NOT EXISTS posts (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id TEXT,  -- Changed from INTEGER to TEXT for UUID
+        user_id TEXT,
         title TEXT,
         content TEXT,
-        category TEXT,
-        created_at DATETIME DEFAULT (DATETIME('now', 'localtime')), -- Store in local time (EAT)
+        created_at DATETIME DEFAULT (DATETIME('now', 'localtime')),
         FOREIGN KEY(user_id) REFERENCES users(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS post_categories (
+        post_id INTEGER,
+        category TEXT,
+        FOREIGN KEY(post_id) REFERENCES posts(id)
     );
 
     CREATE TABLE IF NOT EXISTS comments (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         post_id INTEGER,
-        user_id TEXT,  -- Changed from INTEGER to TEXT for UUID
+        user_id TEXT,
         content TEXT,
         FOREIGN KEY(post_id) REFERENCES posts(id),
         FOREIGN KEY(user_id) REFERENCES users(id)
@@ -46,7 +51,7 @@ func InitDB() {
 
     CREATE TABLE IF NOT EXISTS likes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id TEXT,  -- Changed from INTEGER to TEXT for UUID
+        user_id TEXT,
         post_id INTEGER,
         is_like BOOLEAN,
         FOREIGN KEY(user_id) REFERENCES users(id),
