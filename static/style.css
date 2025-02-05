@@ -455,3 +455,15 @@ main {
     margin-right: 8px;
     /* Space between the checkbox and the label text */
 }
+
+/* Error messages css */
+.back-link {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    padding: 10px 15px;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+}
