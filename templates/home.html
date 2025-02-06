@@ -62,7 +62,7 @@
             {{if .IsLoggedIn}}
             <div id="createPostForm" style="display: none;">
                 <h1>Create a New Post</h1>
-                <form method="POST" action="/post">
+                <form method="POST" action="/post" onsubmit="return validateCategories()">
                     <label for="title">Title:</label>
                     <input type="text" id="title" name="title" required>
                     <br>
@@ -149,6 +149,23 @@
                 postsList.style.display = 'block';
                 postsHeading.style.display = 'block'; 
             }
+        }
+
+        function validateCategories() {
+            const checkboxes = document.querySelectorAll('input[name="category"]');
+            let isChecked = false;
+
+            checkboxes.forEach((checkbox) => {
+                if (checkbox.checked) {
+                    isChecked = true;
+                }
+            });
+
+            if (!isChecked) {
+                alert("Please select at least one category.");
+                return false; // Prevent form submission
+            }
+            return true; // Allow form submission
         }
 
         function filterByCategory(category) {
