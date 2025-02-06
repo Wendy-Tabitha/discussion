@@ -147,7 +147,8 @@ nav a {
     position: sticky;
     top: 80px;
     /* Accounts for header height + some spacing */
-    height: fit-content;
+    height: 500px;
+    overflow-y: scroll;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     border-radius: 5px;
 }
