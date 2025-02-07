@@ -11,6 +11,9 @@
 
 <body>
     <header>
+        <div class="hamburger" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </div>
         {{if .IsLoggedIn}}
         <div class="logo">
             <a href="/post" class="logo-link">Forum</a>
@@ -22,19 +25,21 @@
         {{end}}
         <div class="search-bar">
             <input type="text" placeholder="Search...">
-            <button type="button">Search</button>
+            <!-- <button  type="button">Search</button> -->
         </div>
         <nav>
             {{if .IsLoggedIn}}
             <a href="#" class="auth-button create-post" onclick="toggleCreatePost()">Create Post</a>
             {{else}}
-            <a href="/login" class="auth-button login">Login</a>
-            <a href="/register" class="auth-button register">Register</a>
+            <div class="signup">
+                <a href="/login" class="auth-button login">Login</a>
+                <a href="/register" class="auth-button register">Register</a>
+            </div>
             {{end}}
         </nav>
     </header>
     <div class="container">
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <h3>Categories</h3>
             <ul>
                 <li><a href="#" onclick="filterByCategory('all')">All Posts</a></li>
@@ -53,7 +58,7 @@
                 <li><a href="#" onclick="filterByCategory('jobs')">Jobs</a></li>
             </ul>
             <div class="sidebar-footer">
-                {{if .IsLoggedIn}} 
+                {{if .IsLoggedIn}}
                 <a href="/logout" class="logout-link">Logout</a>
                 {{end}}
             </div>
@@ -106,7 +111,7 @@
                     </strong>
                     <h3>{{.Title}}</h3>
                     <p>{{.Content}}</p>
-                    <p>Categories: {{.Categories}}</p>
+                    <p class="categories">Categories: <span>{{.Categories}}</span></p>
                     <div class="post-actions">
                         <button class="like-button" onclick="toggleLike('{{.ID}}', true)">
                             <i class="fas fa-thumbs-up"></i> Like
@@ -135,6 +140,37 @@
     </div>
 
     <script>
+        function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.querySelector('main'); // Select the main content area
+        sidebar.classList.toggle('active');
+
+        // Toggle the hidden class on the main content
+        if (sidebar.classList.contains('active')) {
+            mainContent.classList.add('hidden'); // Hide main content
+        } else {
+            mainContent.classList.remove('hidden'); // Show main content
+        }
+    }
+
+    function closeSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.querySelector('main'); // Select the main content area
+        sidebar.classList.remove('active');
+        mainContent.classList.remove('hidden'); // Show main content
+    }
+
+    // Close sidebar when clicking outside of it
+    document.addEventListener('click', function(event) {
+        const sidebar = document.getElementById('sidebar');
+        const hamburger = document.querySelector('.hamburger');
+
+        // Check if the click was outside the sidebar and hamburger
+        if (!sidebar.contains(event.target) && !hamburger.contains(event.target)) {
+            closeSidebar();
+        }
+    });
+
         function toggleCreatePost() {
             const createPostForm = document.getElementById('createPostForm');
             const postsList = document.getElementById('posts');
@@ -143,11 +179,11 @@
             if (createPostForm.style.display === 'none') {
                 createPostForm.style.display = 'block';
                 postsList.style.display = 'none';
-                postsHeading.style.display = 'none'; 
+                postsHeading.style.display = 'none';
             } else {
                 createPostForm.style.display = 'none';
                 postsList.style.display = 'block';
-                postsHeading.style.display = 'block'; 
+                postsHeading.style.display = 'block';
             }
         }
 
@@ -187,7 +223,7 @@
                 postsHeading.textContent = category.charAt(0).toUpperCase() + category.slice(1) + ' Posts';
             }
 
-            return false; 
+            return false;
         }
 
         function toggleCommentForm(postId) {
