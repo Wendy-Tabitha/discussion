@@ -278,6 +278,39 @@ main {
     color: var(--primary-color);
 }
 
+/* Comment Form Styles */
+.comment-form {
+    background-color: var(--secondary-color);
+    padding: 5px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: 10px;
+}
+
+.comment-form textarea {
+    width: 90%; /* Full width */
+    margin-top: 0;
+    margin-bottom: 5px; /* Space below the textarea */
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    min-height: 10px;
+    max-height: 40px;
+    font-size: 14px;
+}
+
+.comment-form button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.comment-form button:hover {
+    background-color: #3A6B7A; /* Darker shade for hover effect */
+}
+
 .auth-container {
     max-width: 400px;
     margin: 100px auto;
@@ -542,6 +575,10 @@ main {
         margin-right: 50px;
         margin-left: 2px;
     }
+
+    .auth-container {
+        max-width: 500px;
+    }
 }
 
 @media (max-width: 768px) {
@@ -594,6 +631,10 @@ main {
         display: none;
         transform: translateX(-100%);
         transition: transform 0.3s ease;
+    }
+
+    .auth-container {
+        max-width: 300px;
     }
 }
 
@@ -690,5 +731,9 @@ main {
 
     #createPostForm {
         margin-top: 100px;
+    }
+
+    .auth-container {
+        max-width: 250px;
     }
 }

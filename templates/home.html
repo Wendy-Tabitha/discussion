@@ -42,20 +42,20 @@
         <aside class="sidebar" id="sidebar">
             <h3>Categories</h3>
             <ul>
-                <li><a href="#" onclick="filterByCategory('all')">All Posts</a></li>
-                <li><a href="#" onclick="filterByCategory('technology')">Technology</a></li>
-                <li><a href="#" onclick="filterByCategory('general')">General</a></li>
-                <li><a href="#" onclick="filterByCategory('lifestyle')">Lifestyle</a></li>
-                <li><a href="#" onclick="filterByCategory('entertainment')">Entertainment</a></li>
-                <li><a href="#" onclick="filterByCategory('gaming')">Gaming</a></li>
-                <li><a href="#" onclick="filterByCategory('food')">Food</a></li>
-                <li><a href="#" onclick="filterByCategory('business')">Business</a></li>
-                <li><a href="#" onclick="filterByCategory('religion')">Religion</a></li>
-                <li><a href="#" onclick="filterByCategory('health')">Health</a></li>
-                <li><a href="#" onclick="filterByCategory('music')">Music</a></li>
-                <li><a href="#" onclick="filterByCategory('sports')">Sports</a></li>
-                <li><a href="#" onclick="filterByCategory('beauty')">Beauty</a></li>
-                <li><a href="#" onclick="filterByCategory('jobs')">Jobs</a></li>
+                <li><a href="/filter?category=all">All Posts</a></li>
+                <li><a href="/filter?category=technology">Technology</a></li>
+                <li><a href="/filter?category=general">General</a></li>
+                <li><a href="/filter?category=lifestyle">Lifestyle</a></li>
+                <li><a href="/filter?category=entertainment">Entertainment</a></li>
+                <li><a href="/filter?category=gaming">Gaming</a></li>
+                <li><a href="/filter?category=food">Food</a></li>
+                <li><a href="/filter?category=business">Business</a></li>
+                <li><a href="/filter?category=religion">Religion</a></li>
+                <li><a href="/filter?category=health">Health</a></li>
+                <li><a href="/filter?category=music">Music</a></li>
+                <li><a href="/filter?category=sports">Sports</a></li>
+                <li><a href="/filter?category=beauty">Beauty</a></li>
+                <li><a href="/filter?category=jobs">Jobs</a></li>
             </ul>
             <div class="sidebar-footer">
                 {{if .IsLoggedIn}}
@@ -99,8 +99,14 @@
                 </form>
             </div>
             {{end}}
-
-            <h1 id="postsHeading">All Posts</h1>
+            
+            <h1 id="postsHeading">
+                {{if .SelectedCategory}}
+                {{.SelectedCategory}}
+                {{else}}
+                All Posts
+                {{end}}
+            </h1>
             <div id="posts">
                 {{if .Posts}}
                 {{range .Posts}}
@@ -202,28 +208,6 @@
                 return false; // Prevent form submission
             }
             return true; // Allow form submission
-        }
-
-        function filterByCategory(category) {
-            const posts = document.querySelectorAll('.post');
-            const postsHeading = document.getElementById('postsHeading');
-
-            posts.forEach(post => {
-                const postCategories = post.getAttribute('data-category').toLowerCase().split(',');
-                if (category === 'all' || postCategories.includes(category.toLowerCase())) {
-                    post.style.display = 'block';
-                } else {
-                    post.style.display = 'none';
-                }
-            });
-
-            if (category === 'all') {
-                postsHeading.textContent = 'All Posts';
-            } else {
-                postsHeading.textContent = category.charAt(0).toUpperCase() + category.slice(1) + ' Posts';
-            }
-
-            return false;
         }
 
         function toggleCommentForm(postId) {
