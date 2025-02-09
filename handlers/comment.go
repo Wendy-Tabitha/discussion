@@ -28,7 +28,8 @@ func CommentHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		postID := r.FormValue("post_id")
 		comment := r.FormValue("comment")
-		userID := "USER_ID" // Replace with actual user ID from session or cookie
+		// Use the actual user ID retrieved from the session
+		// userID is already set above
 
 		// Insert the comment into the database
 		_, err := db.Exec("INSERT INTO comments (post_id, user_id, content) VALUES (?, ?, ?)", postID, userID, comment)

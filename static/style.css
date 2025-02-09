@@ -153,6 +153,16 @@ nav a {
     border-radius: 5px;
 }
 
+.hamburger {
+    display: none;
+}
+
+.sidebar.active {
+    display: block;
+    transform: translateX(0);
+    /* Slide in */
+}
+
 main {
     flex: 1;
     max-width: 800px;
@@ -172,7 +182,8 @@ main {
 
 .auth-button {
     display: inline-block;
-    padding: 8px 16px;
+    padding: 5px;
+    margin-top: 10px;
     border-radius: 4px;
     font-weight: 500;
     transition: all 0.3s ease;
@@ -265,6 +276,39 @@ main {
     background-color: rgb(204, 204, 204);
     text-decoration: none;
     color: var(--primary-color);
+}
+
+/* Comment Form Styles */
+.comment-form {
+    background-color: var(--secondary-color);
+    padding: 5px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: 10px;
+}
+
+.comment-form textarea {
+    width: 90%; /* Full width */
+    margin-top: 0;
+    margin-bottom: 5px; /* Space below the textarea */
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    min-height: 10px;
+    max-height: 40px;
+    font-size: 14px;
+}
+
+.comment-form button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.comment-form button:hover {
+    background-color: #3A6B7A; /* Darker shade for hover effect */
 }
 
 .auth-container {
@@ -467,4 +511,229 @@ main {
     color: white;
     text-decoration: none;
     border-radius: 5px;
+}
+
+.categories {
+    font-size: 14px; /* Set font size */
+    color: #666; /* Set text color */
+    margin-top: 10px; /* Add some space above */
+}
+
+@media (max-width: 1200px) {
+    .logo-link {
+        margin-top: 15px;
+        font-size: 20px; /* Smaller logo */
+        padding-left: 20px;
+    }
+
+    header {
+        flex-direction: row; /* Stack elements */
+        justify-content: space-between;
+        align-items: flex-start;
+        position: fixed;
+        left: 0;
+        padding: 0; /* Reset padding */
+        width: 100%;
+    }
+
+    .hamburger {
+        display: block; /* Show hamburger on small screens */
+        font-size: 24px;
+        cursor: pointer;
+        margin-left: 10px;
+    }
+
+    .post {
+        width: 100%;
+        max-width: 650px;
+    }
+
+    #postsHeading {
+        margin-top: 60px;
+        width: 100%;
+        max-width: 650px;
+    }
+
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 250px;
+        height: 500px;
+        margin-top: 80px;
+        overflow-y: scroll;
+        background-color: white;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        display: none;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+
+    .create-post {
+        margin-top: 10px;
+        margin-right: 50px;
+        margin-left: 2px;
+    }
+
+    .auth-container {
+        max-width: 500px;
+    }
+}
+
+@media (max-width: 768px) {
+    header {
+        justify-content: space-between;
+        align-items: center;
+        position: fixed;
+        left: 0;
+        padding: 0; /* Reset padding */
+        margin: 0;
+        width: 100%;
+    }
+
+    .hamburger {
+        display: block; /* Show hamburger on small screens */
+        font-size: 24px;
+        cursor: pointer;
+        margin-left: 10px;
+    }
+
+    .logo-link {
+        font-size: 20px; /* Smaller logo */
+        margin-top: 8px;
+        padding-left: 20px;
+    }
+
+    .search-bar input {
+        width: 100px; /* Smaller search bar */
+    }
+
+    .auth-button a {
+        font-size: 12px; /* Smaller buttons */
+    }
+
+    .auth-button.create-post {
+        font-size: 12px; /* Smaller create post button */
+    }
+
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 250px;
+        height: 500px;
+        margin-top: 80px;
+        overflow-y: scroll;
+        background-color: white;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        display: none;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+
+    .auth-container {
+        max-width: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+    header {
+        flex-direction: row; /* Ensure items are in a row */
+        justify-content: space-between; /* Space between elements */
+        align-items: center; /* Center items vertically */
+        position: fixed;
+        left: 0;
+        padding: 0; /* Reset padding */
+        margin: 0;
+        width: 100%;
+        z-index: 1000;
+    }
+
+    .auth-button {
+        display: flex; /* Use flexbox for buttons */
+        gap: 5px; /* Space between buttons */
+        margin: 0; /* Remove margin to align properly */
+        padding: 6px 10px; /* Adjust padding for smaller screens */
+    }
+
+    .logo-link {
+        font-size: 17px; /* Smaller logo */
+        margin-top: 8px;
+        padding-left: 20px;
+    }
+
+    .post {
+        width: 100%;
+        max-width: 300px; /* Adjust max-width for smaller screens */
+    }
+
+    .sidebar {
+        position: fixed;
+        /* top: 0; */
+        margin-top: 80px;
+        left: 0;
+        width: 250px;
+        height: 500px;
+        overflow-y: scroll;
+        background-color: white;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        display: none;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+
+    .create-post {
+        margin-top: 10px;
+        margin-right: 50px;
+        margin-left: 2px; /* Adjust margin for create post button */
+    }
+
+    #postsHeading {
+        margin-top: 100px; /* Adjust margin for posts heading */
+        width: 100%;
+        max-width: 300px; /* Adjust max-width for smaller screens */
+    }
+
+    .signup {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .login {
+        display: flex;
+        flex-direction: row; /* Align login buttons in a row */
+        margin-top: 30px; /* Add margin below login */
+        margin-right: 30px;
+        padding: 2px;
+        font-size: 12px;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .register {
+        display: flex;
+        /* flex-direction: row; Align login buttons in a row */
+        margin-top: 10px; /* Add margin below login */
+        margin-right: 30px;
+        padding: 0;
+        font-size: 12px;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .categories {
+        display: flex;
+        flex-wrap: wrap; /* Allow categories to wrap */
+    }
+
+    #createPostForm {
+        margin-top: 100px;
+    }
+
+    .auth-container {
+        max-width: 250px;
+    }
 }
