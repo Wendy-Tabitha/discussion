@@ -116,7 +116,6 @@ func CommentLikeHandler(w http.ResponseWriter, r *http.Request) {
 				ELSE NULL 
 			END
 	`, commentIDInt, commentIDInt, commentIDInt, userID, commentIDInt, userID).Scan(&response.LikeCount, &response.DislikeCount, &userLiked)
-
 	if err != nil {
 		log.Printf("Error getting updated counts: %v", err)
 		http.Error(w, "Database error", http.StatusInternalServerError)
