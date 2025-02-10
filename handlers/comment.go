@@ -10,6 +10,26 @@ import (
 
 // Comment handler for processing form submissions
 func CommentHandler(w http.ResponseWriter, r *http.Request) {
+	// Get user session
+	var userID string
+	sessionCookie, err := r.Cookie("session_id")
+	if err == nil {
+		err = db.QueryRow("SELECT user_id FROM sessions WHERE session_id = ?", sessionCookie.Value).Scan(&userID)
+		if err == sql.ErrNoRows {
+			http.SetCookie(w, &http.Cookie{
+				Name:     "session_id",
+				Value:    "",
+				Path:     "/",
+				Expires:  time.Unix(0, 0),
+				MaxAge:   -1,
+				HttpOnly: true,
+			})
+		} else if err != nil {
+			RenderError(w, r, "Database Error", http.StatusInternalServerError, "/post")
+			return
+		}
+	}
+
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
@@ -17,8 +37,7 @@ func CommentHandler(w http.ResponseWriter, r *http.Request) {
 
 	postID := r.FormValue("post_id")
 	content := r.FormValue("content")
-	parentID := r.FormValue("parent_id") // New: Get parent comment ID if this is a reply
-	userID := getUserIDFromSession(w, r) // Fetch user ID from session
+	parentID := r.FormValue("parent_id") // For reply functionality
 
 	if userID == "" {
 		http.Error(w, "Please log in to comment on posts", http.StatusUnauthorized)
@@ -64,8 +83,9 @@ func CommentHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Database error", http.StatusInternalServerError)
 		return
 	}
-	defer tx.Rollback()
 
+	// Insert the comment
+	var result sql.Result
 	if parentID != "" {
 		// Convert parentID to int
 		parentIDInt, err := strconv.Atoi(parentID)
@@ -92,33 +112,23 @@ func CommentHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// This is a reply to another comment
-		_, err = tx.Exec(
-			"INSERT INTO comments (post_id, user_id, content, parent_id, created_at) VALUES (?, ?, ?, ?, ?)",
-			postIDInt, userID, content, parentIDInt, time.Now(),
-		)
-		if err != nil {
-			tx.Rollback()
-			http.Error(w, "Failed to insert comment", http.StatusInternalServerError)
-			return
-		}
+		result, err = tx.Exec("INSERT INTO comments (post_id, user_id, content, parent_id, created_at) VALUES (?, ?, ?, ?, ?)", 
+			postIDInt, userID, content, parentIDInt, time.Now())
 	} else {
-		// This is a top-level comment
-		_, err = tx.Exec(
-			"INSERT INTO comments (post_id, user_id, content, created_at) VALUES (?, ?, ?, ?)",
-			postIDInt, userID, content, time.Now(),
-		)
-		if err != nil {
-			tx.Rollback()
-			http.Error(w, "Failed to insert comment", http.StatusInternalServerError)
-			return
-		}
+		result, err = tx.Exec("INSERT INTO comments (post_id, user_id, content, created_at) VALUES (?, ?, ?, ?)", 
+			postIDInt, userID, content, time.Now())
 	}
 
-	// Commit the transaction
+	if err != nil {
+		tx.Rollback()
+		log.Printf("Error inserting comment: %v", err)
+		http.Error(w, "Error posting comment", http.StatusInternalServerError)
+		return
+	}
+
 	if err = tx.Commit(); err != nil {
 		log.Printf("Error committing transaction: %v", err)
-		http.Error(w, "Error committing transaction", http.StatusInternalServerError)
+		http.Error(w, "Database error", http.StatusInternalServerError)
 		return
 	}
 
