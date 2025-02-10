@@ -4,10 +4,29 @@ import (
 	"database/sql"
 	"html/template"
 	"net/http"
+	"time"
 )
 
 func FilterHandler(w http.ResponseWriter, r *http.Request) {
 	var userID string
+	sessionCookie, err := r.Cookie("session_id")
+	if err == nil {
+		err = db.QueryRow("SELECT user_id FROM sessions WHERE session_id = ?", sessionCookie.Value).Scan(&userID)
+		if err == sql.ErrNoRows {
+			http.SetCookie(w, &http.Cookie{
+				Name:     "session_id",
+				Value:    "",
+				Path:     "/",
+				Expires:  time.Unix(0, 0),
+				MaxAge:   -1,
+				HttpOnly: true,
+			})
+		} else if err != nil {
+			RenderError(w, r, "Database Error", http.StatusInternalServerError)
+			return
+		}
+	}
+
 	category := r.URL.Query().Get("category") // Get the category from the query parameters
 
 	// Query to fetch posts based on the selected category
@@ -23,7 +42,6 @@ func FilterHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var rows *sql.Rows
-	var err error
 	if category == "all" || category == "" {
 		rows, err = db.Query(query)
 	} else {
@@ -59,7 +77,7 @@ func FilterHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	tmpl.Execute(w, map[string]interface{}{
 		"Posts":            posts,
-		"IsLoggedIn":       userID != "",
-		"SelectedCategory": category, // Pass the selected category to the template
+		"IsLoggedIn":       userID != "", // Pass the login status
+		"SelectedCategory": category,     // Pass the selected category to the template
 	})
 }
