@@ -59,7 +59,9 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rows, err := db.Query(`SELECT p.id, p.title, p.content, GROUP_CONCAT(pc.category) as categories, u.username, 
-	p.created_at FROM posts p JOIN users u ON p.user_id = u.id LEFT JOIN post_categories pc ON p.id = pc.post_id GROUP BY p.id ORDER BY p.created_at DESC`)
+	p.created_at, COALESCE(SUM(CASE WHEN l.is_like = 1 THEN 1 ELSE 0 END), 0) AS like_count,
+			COALESCE(SUM(CASE WHEN l.is_like = 0 THEN 1 ELSE 0 END), 0) AS dislike_count
+ FROM posts p JOIN users u ON p.user_id = u.id LEFT JOIN post_categories pc ON p.id = pc.post_id  LEFT JOIN likes l ON p.id = l.post_id GROUP BY p.id, p.title, p.content, u.username, p.created_at ORDER BY p.created_at DESC`)
 	if err != nil {
 		RenderError(w, r, "Error fetching posts", http.StatusInternalServerError)
 		return
@@ -70,7 +72,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var post Post
 		var categories sql.NullString // Use sql.NullString to handle NULL values
-		if err := rows.Scan(&post.ID, &post.Title, &post.Content, &categories, &post.Username, &post.CreatedAt); err != nil {
+		if err := rows.Scan(&post.ID, &post.Title, &post.Content, &categories, &post.Username, &post.CreatedAt, &post.LikeCount, &post.DislikeCount,); err != nil {
 			RenderError(w, r, "Error scanning posts", http.StatusInternalServerError)
 			return
 		}
