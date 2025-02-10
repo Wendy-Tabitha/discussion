@@ -119,11 +119,11 @@
                     <p>{{.Content}}</p>
                     <p class="categories">Categories: <span>{{.Categories}}</span></p>
                     <div class="post-actions">
-                        <button class="like-button" onclick="toggleLike('{{.ID}}', true)">
-                            <i class="fas fa-thumbs-up"></i> Like
+                        <button class="like-button" data-post-id="{{.ID}}" onclick="toggleLike('{{.ID}}', true)">
+                            <i class="fas fa-thumbs-up"></i> Like (<span class="like-count">{{.LikeCount}}</span>)
                         </button>
-                        <button class="dislike-button" onclick="toggleLike('{{.ID}}', false)">
-                            <i class="fas fa-thumbs-down"></i> Dislike
+                        <button class="dislike-button" data-post-id="{{.ID}}" onclick="toggleLike('{{.ID}}', false)">
+                            <i class="fas fa-thumbs-down"></i> Dislike (<span class="dislike-count">{{.DislikeCount}}</span>)
                         </button>
                         <button class="comment-button" onclick="toggleCommentForm('{{.ID}}')">
                             <i class="fas fa-comment"></i> Comment
@@ -146,6 +146,53 @@
     </div>
 
     <script>
+         let isProcessing = false; // Debounce flag
+
+function toggleLike(postId, isLike) {
+    if (isProcessing) return; // Prevent multiple rapid clicks
+    isProcessing = true;
+
+    fetch('/like', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `post_id=${postId}&is_like=${isLike}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update the like and dislike counts
+            const likeCountElement = document.querySelector(`.like-button[data-post-id="${postId}"] .like-count`);
+            const dislikeCountElement = document.querySelector(`.dislike-button[data-post-id="${postId}"] .dislike-count`);
+
+            likeCountElement.textContent = data.like_count;
+            dislikeCountElement.textContent = data.dislike_count;
+
+            // Update button styles
+            const likeButton = document.querySelector(`.like-button[data-post-id="${postId}"]`);
+            const dislikeButton = document.querySelector(`.dislike-button[data-post-id="${postId}"]`);
+
+            if (isLike) {
+                likeButton.classList.toggle('active');
+                dislikeButton.classList.remove('active');
+            } else {
+                dislikeButton.classList.toggle('active');
+                likeButton.classList.remove('active');
+            }
+        } else {
+            console.error('Error toggling like');
+            alert('Failed to update like/dislike. Please try again.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+    })
+    .finally(() => {
+        isProcessing = false; // Reset debounce flag
+    });
+}
         function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
         const mainContent = document.querySelector('main'); // Select the main content area
