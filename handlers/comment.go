@@ -21,7 +21,7 @@ func CommentHandler(w http.ResponseWriter, r *http.Request) {
 				HttpOnly: true,
 			})
 		} else if err != nil {
-			RenderError(w, r, "Database Error", http.StatusInternalServerError)
+			RenderError(w, r, "Database Error", http.StatusInternalServerError, "/post")
 			return
 		}
 	}

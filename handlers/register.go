@@ -16,27 +16,27 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		confirmPassword := r.FormValue("confirm_password")
 
 		if password != confirmPassword {
-			RenderError(w, r, "Passwords do not match", http.StatusBadRequest)
+			RenderError(w, r, "Passwords do not match", http.StatusBadRequest, "/")
 			return
 		}
 
 		var existingEmail string
 		err := db.QueryRow("SELECT email FROM users WHERE email = ?", email).Scan(&existingEmail)
 		if err == nil {
-			RenderError(w, r, "Email already taken", http.StatusBadRequest)
+			RenderError(w, r, "Email already taken", http.StatusBadRequest, "/")
 			return
 		}
 
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 		if err != nil {
-			RenderError(w, r, "Error hashing password", http.StatusInternalServerError)
+			RenderError(w, r, "Error hashing password", http.StatusInternalServerError, "/")
 			return
 		}
 
 		userID := uuid.New().String()
 		_, err = db.Exec("INSERT INTO users (id, email, username, password) VALUES (?, ?, ?, ?)", userID, email, username, hashedPassword)
 		if err != nil {
-			RenderError(w, r, "Error creating user: "+err.Error(), http.StatusInternalServerError)
+			RenderError(w, r, "Error creating user: "+err.Error(), http.StatusInternalServerError, "/")
 			return
 		}
 
@@ -46,7 +46,7 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	tmpl, err := template.ParseFiles("templates/register.html")
 	if err != nil {
-		RenderError(w, r, "Error parsing register template", http.StatusInternalServerError)
+		RenderError(w, r, "Error parsing register template", http.StatusInternalServerError, "/")
 		return
 	}
 	tmpl.Execute(w, nil)

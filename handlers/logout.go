@@ -16,7 +16,7 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 
 	_, err = db.Exec(query, session.Value)
 	if err != nil {
-		RenderError(w, r, "Database error", http.StatusInternalServerError)
+		RenderError(w, r, "Database error", http.StatusInternalServerError, "/post")
 		return
 	}
 	// Clear the session cookie

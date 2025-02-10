@@ -13,7 +13,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		tmpl, err := template.ParseFiles("templates/login.html")
 		if err != nil {
-			RenderError(w, r, "Error parsing file", http.StatusInternalServerError)
+			RenderError(w, r, "Error parsing file", http.StatusInternalServerError, "/")
 			return
 		}
 		tmpl.Execute(w, nil)
@@ -25,13 +25,13 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		var user User
 		err := db.QueryRow("SELECT id, password FROM users WHERE email = ?", email).Scan(&user.ID, &user.Password)
 		if err != nil {
-			RenderError(w, r, "Invalid email or password", http.StatusUnauthorized)
+			RenderError(w, r, "Invalid email or password", http.StatusUnauthorized, "/")
 			return
 		}
 
 		err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 		if err != nil {
-			RenderError(w, r, "Invalid email or password", http.StatusUnauthorized)
+			RenderError(w, r, "Invalid email or password", http.StatusUnauthorized, "/")
 			return
 		}
 
@@ -41,10 +41,9 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		if err == nil {
 			_, err = db.Exec("DELETE FROM sessions WHERE user_id = ?", user.ID)
 			if err != nil {
-				RenderError(w, r, "Internal Server Error", http.StatusInternalServerError)
+				RenderError(w, r, "Internal Server Error", http.StatusInternalServerError, "/")
 				return
 			}
-
 		}
 		sessionID := uuid.New().String()
 
@@ -58,14 +57,14 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		// Store session in the database
 		_, err = db.Exec("INSERT INTO sessions (session_id, user_id) VALUES (?, ?)", sessionID, user.ID)
 		if err != nil {
-			RenderError(w, r, "Error creating session", http.StatusInternalServerError)
+			RenderError(w, r, "Error creating session", http.StatusInternalServerError, "/")
 			return
 		}
 
 		http.Redirect(w, r, "/post", http.StatusSeeOther)
 		return
 	} else {
-		RenderError(w, r, "Method Not Allowed", http.StatusMethodNotAllowed)
+		RenderError(w, r, "Method Not Allowed", http.StatusMethodNotAllowed, "/")
 		return
 	}
 }

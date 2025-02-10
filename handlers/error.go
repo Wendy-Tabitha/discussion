@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func RenderError(w http.ResponseWriter, r *http.Request, message string, statuscode int) {
+func RenderError(w http.ResponseWriter, r *http.Request, message string, statuscode int, backLink string) {
 	var userID string
 	sessionCookie, err := r.Cookie("session_id")
 	if err == nil {
@@ -22,7 +22,7 @@ func RenderError(w http.ResponseWriter, r *http.Request, message string, statusc
 				HttpOnly: true,
 			})
 		} else if err != nil {
-			RenderError(w, r, "Database Error", http.StatusInternalServerError)
+			RenderError(w, r, "Database Error", http.StatusInternalServerError, backLink)
 			return
 		}
 	}
@@ -32,9 +32,11 @@ func RenderError(w http.ResponseWriter, r *http.Request, message string, statusc
 		http.Error(w, "Error parsing error template", http.StatusInternalServerError)
 		return
 	}
+
 	tmpl.Execute(w, map[string]interface{}{
 		"ErrorMessage": message,
 		"StatusCode":   statuscode,
 		"IsLoggedIn":   userID != "",
+		"BackLink":     backLink, // Pass the back link to the template
 	})
 }
