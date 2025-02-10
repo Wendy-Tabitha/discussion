@@ -10,9 +10,13 @@ import (
 func FilterHandler(w http.ResponseWriter, r *http.Request) {
 	var userID string
 	sessionCookie, err := r.Cookie("session_id")
+	isLoggedIn := false // Flag to check if the user is logged in
+
 	if err == nil {
 		err = db.QueryRow("SELECT user_id FROM sessions WHERE session_id = ?", sessionCookie.Value).Scan(&userID)
-		if err == sql.ErrNoRows {
+		if err == nil {
+			isLoggedIn = true // User is logged in
+		} else if err == sql.ErrNoRows {
 			http.SetCookie(w, &http.Cookie{
 				Name:     "session_id",
 				Value:    "",
@@ -21,8 +25,8 @@ func FilterHandler(w http.ResponseWriter, r *http.Request) {
 				MaxAge:   -1,
 				HttpOnly: true,
 			})
-		} else if err != nil {
-			RenderError(w, r, "Database Error", http.StatusInternalServerError)
+		} else {
+			RenderError(w, r, "Database Error", http.StatusInternalServerError, "/")
 			return
 		}
 	}
@@ -48,7 +52,12 @@ func FilterHandler(w http.ResponseWriter, r *http.Request) {
 		rows, err = db.Query(query, category)
 	}
 	if err != nil {
-		RenderError(w, r, "Error fetching posts", http.StatusInternalServerError)
+		// Redirect based on login status
+		if isLoggedIn {
+			RenderError(w, r, "Error fetching posts", http.StatusInternalServerError, "/post")
+		} else {
+			RenderError(w, r, "Error fetching posts", http.StatusInternalServerError, "/")
+		}
 		return
 	}
 	defer rows.Close()
@@ -58,7 +67,12 @@ func FilterHandler(w http.ResponseWriter, r *http.Request) {
 		var post Post
 		var categories sql.NullString // Use sql.NullString to handle NULL values
 		if err := rows.Scan(&post.ID, &post.Title, &post.Content, &categories, &post.Username, &post.CreatedAt); err != nil {
-			RenderError(w, r, "Error scanning posts", http.StatusInternalServerError)
+			// Redirect based on login status
+			if isLoggedIn {
+				RenderError(w, r, "Error scanning posts", http.StatusInternalServerError, "/post")
+			} else {
+				RenderError(w, r, "Error scanning posts", http.StatusInternalServerError, "/")
+			}
 			return
 		}
 		if categories.Valid {
@@ -72,12 +86,17 @@ func FilterHandler(w http.ResponseWriter, r *http.Request) {
 	// Render the home template with the filtered posts
 	tmpl, err := template.ParseFiles("templates/home.html")
 	if err != nil {
-		RenderError(w, r, "Error parsing file", http.StatusInternalServerError)
+		// Redirect based on login status
+		if isLoggedIn {
+			RenderError(w, r, "Error parsing file", http.StatusInternalServerError, "/post")
+		} else {
+			RenderError(w, r, "Error parsing file", http.StatusInternalServerError, "/")
+		}
 		return
 	}
 	tmpl.Execute(w, map[string]interface{}{
 		"Posts":            posts,
-		"IsLoggedIn":       userID != "", // Pass the login status
-		"SelectedCategory": category,     // Pass the selected category to the template
+		"IsLoggedIn":       isLoggedIn,
+		"SelectedCategory": category,
 	})
 }
