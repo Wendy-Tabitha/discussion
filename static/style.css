@@ -501,43 +501,194 @@ main {
     /* Space between the checkbox and the label text */
 }
 
-/* Error messages css */
-.back-link {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* Comments Section */
+.comments-section {
     margin-top: 20px;
-    padding: 10px 15px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.comment {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.comment.reply {
+    margin-left: 30px;
+    background-color: #f5f5f5;
+    border-left: 3px solid var(--primary-color);
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.replies {
+    margin-top: 15px;
+    padding-left: 20px;
+}
+
+.comment-content {
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 10px;
+    color: var(--text-color);
+}
+
+.comment-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: #666;
+}
+
+.comment-author {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.comment-date {
+    color: #888;
+}
+
+.comment-actions {
+    margin-top: 10px;
+}
+
+.reply-button {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-size: 12px;
+    cursor: pointer;
+    padding: 0;
+    margin-right: 10px;
+}
+
+.reply-button:hover {
+    text-decoration: underline;
+}
+
+/* Comment Form */
+.comment-form, .reply-form {
+    margin-top: 15px;
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+}
+
+.reply-form {
+    margin-left: 30px;
+    background-color: #f5f5f5;
+}
+
+.comment-form textarea, .reply-form textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    resize: vertical;
+}
+
+.comment-form button, .reply-form button {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.comment-form button:hover, .reply-form button:hover {
+    background-color: #3a6270;
+}
+
+/* Error messages css */
+.error-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.error-icon {
+    font-size: 48px;
+    color: #dc3545;
+    margin-bottom: 20px;
+}
+
+.error-code {
+    font-size: 24px;
+    color: #dc3545;
+    margin-bottom: 10px;
+}
+
+.error-message {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.error-help {
+    font-size: 16px;
+    color: #888;
+    margin-bottom: 30px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}
+
+.back-button {
+    display: inline-block;
+    padding: 12px 24px;
+    background-color: #007bff;
     color: white;
     text-decoration: none;
-    border-radius: 5px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.back-button:hover {
+    background-color: #0056b3;
+}
+
+.back-button i {
+    margin-right: 8px;
 }
 
 .categories {
-    font-size: 14px; /* Set font size */
-    color: #666; /* Set text color */
-    margin-top: 10px; /* Add some space above */
+    font-size: 14px;
+    color: #666;
+    margin-top: 10px;
 }
 
 @media (max-width: 1200px) {
     .logo-link {
         margin-top: 15px;
-        font-size: 20px; /* Smaller logo */
+        font-size: 20px;
         padding-left: 20px;
     }
 
     header {
-        flex-direction: row; /* Stack elements */
+        flex-direction: row;
         justify-content: space-between;
         align-items: flex-start;
         position: fixed;
         left: 0;
-        padding: 0; /* Reset padding */
+        padding: 0;
         width: 100%;
     }
 
     .hamburger {
-        display: block; /* Show hamburger on small screens */
+        display: block;
         font-size: 24px;
         cursor: pointer;
         margin-left: 10px;

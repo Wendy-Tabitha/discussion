@@ -4,17 +4,85 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/static/style.css">
-    <title>Error</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <title>Error - {{.StatusCode}}</title>
+    <style>
+        .error-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .error-icon {
+            font-size: 48px;
+            color: #dc3545;
+            margin-bottom: 20px;
+        }
+
+        .error-code {
+            font-size: 24px;
+            color: #dc3545;
+            margin-bottom: 10px;
+        }
+
+        .error-message {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .error-help {
+            font-size: 16px;
+            color: #888;
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+
+        .back-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .back-button:hover {
+            background-color: #0056b3;
+        }
+
+        .back-button i {
+            margin-right: 8px;
+        }
+    </style>
 </head>
 <body>
-    <div class="auth-container">
-        <h1>{{.StatusCode}}</h1>
-        <p>{{.ErrorMessage}}</p>
+    <div class="error-container">
+        <i class="fas fa-exclamation-circle error-icon"></i>
+        <div class="error-code">Error {{.StatusCode}}</div>
+        <div class="error-message">{{.ErrorMessage}}</div>
+        
+        {{if .HelpMessage}}
+        <div class="error-help">
+            <strong>Helpful Tip:</strong> {{.HelpMessage}}
+        </div>
+        {{end}}
 
         {{if .IsLoggedIn}}
-        <a href="/post" class="back-link">← Back to Postpage</a>
+        <a href="/post" class="back-button">
+            <i class="fas fa-arrow-left"></i>Back to Posts
+        </a>
         {{else}}
-        <a href="/" class="back-link">← Back to Homepage</a>
+        <a href="/" class="back-button">
+            <i class="fas fa-arrow-left"></i>Back to Homepage
+        </a>
         {{end}}
     </div>
 </body>

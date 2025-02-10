@@ -2,7 +2,7 @@ package handlers
 
 // User represents a user in the system
 type User struct {
-	ID       string 
+	ID       string
 	Email    string
 	Username string
 	Password string
@@ -10,15 +10,16 @@ type User struct {
 
 // Post represents a post in the forum
 type Post struct {
-	ID       int
-	UserID   string 
-	Title    string
-	Content  string
-	Categories string // Changed to string to hold multiple categories
-	Username string 
-	CreatedAt string
-	LikeCount   int // Number of likes
+	ID           int
+	UserID       string
+	Title        string
+	Content      string
+	Categories   string
+	Username     string
+	CreatedAt    string
+	LikeCount    int // Number of likes
 	DislikeCount int
+	Comments     []Comment // List of comments for this post
 }
 
 type Like struct {
@@ -28,16 +29,24 @@ type Like struct {
 	IsLike bool   // true for like, false for dislike
 }
 
-// Comment represents a comment on a post
+// Comment struct
 type Comment struct {
-	ID      int
-	PostID  int
-	UserID  string 
-	Content string
+	ID          int
+	PostID      int
+	UserID      string // Changed from int to string to match User.ID
+	Content     string
+	CreatedAt   string
+	Username    string
+	ParentID    *int      // Parent comment ID, null for top-level comments
+	Replies     []Comment // List of reply comments
+	ReplyCount  int       // Number of replies
+	LikeCount   int       // Number of likes
+	DislikeCount int      // Number of dislikes
+	UserLiked    *bool    // Whether the current user liked this comment
 }
 
 // Session represents a user session
 type Session struct {
-	SessionID string 
+	SessionID string
 	UserID    string
 }

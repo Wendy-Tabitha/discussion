@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// RenderError renders an error page with the given message and status code
 func RenderError(w http.ResponseWriter, r *http.Request, message string, statuscode int) {
 	var userID string
 	sessionCookie, err := r.Cookie("session_id")
@@ -22,7 +23,7 @@ func RenderError(w http.ResponseWriter, r *http.Request, message string, statusc
 				HttpOnly: true,
 			})
 		} else if err != nil {
-			RenderError(w, r, "Database Error", http.StatusInternalServerError)
+			http.Error(w, "Database Error", http.StatusInternalServerError)
 			return
 		}
 	}
@@ -37,4 +38,12 @@ func RenderError(w http.ResponseWriter, r *http.Request, message string, statusc
 		"StatusCode":   statuscode,
 		"IsLoggedIn":   userID != "",
 	})
+}
+
+// HandleDatabaseError handles database-related errors
+func HandleDatabaseError(w http.ResponseWriter, r *http.Request, err error) {
+	if err != nil {
+		RenderError(w, r, "Database Error", http.StatusInternalServerError)
+		return
+	}
 }
