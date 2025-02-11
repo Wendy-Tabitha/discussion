@@ -49,13 +49,14 @@ func InitDB() {
         FOREIGN KEY(user_id) REFERENCES users(id)
     );
 
-    CREATE TABLE IF NOT EXISTS likes (
+     CREATE TABLE IF NOT EXISTS likes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id TEXT,
         post_id INTEGER,
-        is_like BOOLEAN,
+        user_id TEXT,
+        is_like BOOLEAN, -- 1 for like, 0 for dislike
+        FOREIGN KEY(post_id) REFERENCES posts(id),
         FOREIGN KEY(user_id) REFERENCES users(id),
-        FOREIGN KEY(post_id) REFERENCES posts(id)
+        UNIQUE(post_id, user_id) -- Ensure a user can only like/dislike a post once
     );
 
     CREATE TABLE IF NOT EXISTS sessions (
