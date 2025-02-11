@@ -29,8 +29,28 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			post.Categories = "" // Set to empty string if NULL
 		}
+
+		// Fetch comments for the post
+		var comments []Comment
+		commentRows, err := db.Query("SELECT c.id, c.content, u.username FROM comments c JOIN users u ON c.user_id = u.id WHERE c.post_id = ?", post.ID)
+		if err != nil {
+			RenderError(w, r, "Error fetching comments", http.StatusInternalServerError, "/")
+			return
+		}
+		defer commentRows.Close()
+
+		for commentRows.Next() {
+			var comment Comment
+			if err := commentRows.Scan(&comment.ID, &comment.Content, &comment.Username); err != nil {
+				RenderError(w, r, "Error scanning comments", http.StatusInternalServerError, "/")
+				return
+			}
+			comments = append(comments, comment)
+		}
+		post.Comments = comments // Add comments to the post
 		posts = append(posts, post)
 	}
+
 	// Render the index page with posts
 	tmpl, err := template.ParseFiles("templates/home.html")
 	if err != nil {

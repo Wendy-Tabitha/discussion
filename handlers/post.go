@@ -28,6 +28,11 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodPost {
+		if userID == "" {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
 		title := r.FormValue("title")
 		content := r.FormValue("content")
 		categories := r.Form["category"] // Get multiple categories
@@ -45,7 +50,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Insert categories into the database
+		// Insert categories into the database only when creating a post
 		for _, category := range categories {
 			_, err = db.Exec("INSERT INTO post_categories (post_id, category) VALUES (?, ?)", postID, category)
 			if err != nil {
@@ -73,7 +78,7 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var post Post
 		var categories sql.NullString // Use sql.NullString to handle NULL values
-		if err := rows.Scan(&post.ID, &post.Title, &post.Content, &categories, &post.Username, &post.CreatedAt, &post.LikeCount, &post.DislikeCount,); err != nil {
+		if err := rows.Scan(&post.ID, &post.Title, &post.Content, &categories, &post.Username, &post.CreatedAt, &post.LikeCount, &post.DislikeCount); err != nil {
 			RenderError(w, r, "Error scanning posts", http.StatusInternalServerError, "/post")
 			return
 		}
@@ -82,6 +87,25 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 		} else {
 			post.Categories = "" // Set to empty string if NULL
 		}
+
+		// Fetch comments for the post
+		var comments []Comment
+		commentRows, err := db.Query("SELECT c.id, c.content, u.username FROM comments c JOIN users u ON c.user_id = u.id WHERE c.post_id = ?", post.ID)
+		if err != nil {
+			RenderError(w, r, "Error fetching comments", http.StatusInternalServerError, "/post")
+			return
+		}
+		defer commentRows.Close()
+
+		for commentRows.Next() {
+			var comment Comment
+			if err := commentRows.Scan(&comment.ID, &comment.Content, &comment.Username); err != nil {
+				RenderError(w, r, "Error scanning comments", http.StatusInternalServerError, "/post")
+				return
+			}
+			comments = append(comments, comment)
+		}
+		post.Comments = comments // Add comments to the post
 		posts = append(posts, post)
 	}
 
