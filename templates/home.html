@@ -24,8 +24,8 @@
         </div>
         {{end}}
         <div class="search-bar">
-            <input type="text" placeholder="Search...">
-            <!-- <button  type="button">Search</button> -->
+            <input type="text" placeholder="Search..." id="searchInput">
+            <button type="button" onclick="searchPosts()"><i class="fas fa-search"></i></button>
         </div>
         <nav>
             {{if .IsLoggedIn}}
@@ -112,9 +112,7 @@
                 {{range .Posts}}
                 <div class="post" data-category="{{.Categories}}">
                     <p class="posted-on">Posted on: {{.CreatedAt}}</p>
-                    <strong>
-                        <p>{{.Username}}</p>
-                    </strong>
+                    <h2>{{.Username}}</h2>
                     <h3>{{.Title}}</h3>
                     <p>{{.Content}}</p>
                     <p class="categories">Categories: <span>{{.Categories}}</span></p>
@@ -146,83 +144,58 @@
     </div>
 
     <script>
-         let isProcessing = false; // Debounce flag
+        let isProcessing = false; // Debounce flag
 
-function toggleLike(postId, isLike) {
-    if (isProcessing) return; // Prevent multiple rapid clicks
-    isProcessing = true;
+        function toggleLike(postId, isLike) {
+            if (isProcessing) return; // Prevent multiple rapid clicks
+            isProcessing = true;
 
-    fetch('/like', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `post_id=${postId}&is_like=${isLike}`
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Update the like and dislike counts
-            const likeCountElement = document.querySelector(`.like-button[data-post-id="${postId}"] .like-count`);
-            const dislikeCountElement = document.querySelector(`.dislike-button[data-post-id="${postId}"] .dislike-count`);
+            fetch('/like', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `post_id=${postId}&is_like=${isLike}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update the like and dislike counts
+                    const likeCountElement = document.querySelector(`.like-button[data-post-id="${postId}"] .like-count`);
+                    const dislikeCountElement = document.querySelector(`.dislike-button[data-post-id="${postId}"] .dislike-count`);
 
-            likeCountElement.textContent = data.like_count;
-            dislikeCountElement.textContent = data.dislike_count;
+                    likeCountElement.textContent = data.like_count;
+                    dislikeCountElement.textContent = data.dislike_count;
 
-            // Update button styles
-            const likeButton = document.querySelector(`.like-button[data-post-id="${postId}"]`);
-            const dislikeButton = document.querySelector(`.dislike-button[data-post-id="${postId}"]`);
+                    // Update button styles
+                    const likeButton = document.querySelector(`.like-button[data-post-id="${postId}"]`);
+                    const dislikeButton = document.querySelector(`.dislike-button[data-post-id="${postId}"]`);
 
-            if (isLike) {
-                likeButton.classList.toggle('active');
-                dislikeButton.classList.remove('active');
-            } else {
-                dislikeButton.classList.toggle('active');
-                likeButton.classList.remove('active');
-            }
-        } else {
-            console.error('Error toggling like');
-            alert('Failed to update like/dislike. Please try again.');
+                    if (isLike) {
+                        likeButton.classList.toggle('active');
+                        dislikeButton.classList.remove('active');
+                    } else {
+                        dislikeButton.classList.toggle('active');
+                        likeButton.classList.remove('active');
+                    }
+                } else {
+                    console.error('Error toggling like');
+                    alert('Failed to update like/dislike. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            })
+            .finally(() => {
+                isProcessing = false; // Reset debounce flag
+            });
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred. Please try again.');
-    })
-    .finally(() => {
-        isProcessing = false; // Reset debounce flag
-    });
-}
+
         function toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        const mainContent = document.querySelector('main'); // Select the main content area
-        sidebar.classList.toggle('active');
-
-        // Toggle the hidden class on the main content
-        if (sidebar.classList.contains('active')) {
-            mainContent.classList.add('hidden'); // Hide main content
-        } else {
-            mainContent.classList.remove('hidden'); // Show main content
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
         }
-    }
-
-    function closeSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        const mainContent = document.querySelector('main'); // Select the main content area
-        sidebar.classList.remove('active');
-        mainContent.classList.remove('hidden'); // Show main content
-    }
-
-    // Close sidebar when clicking outside of it
-    document.addEventListener('click', function(event) {
-        const sidebar = document.getElementById('sidebar');
-        const hamburger = document.querySelector('.hamburger');
-
-        // Check if the click was outside the sidebar and hamburger
-        if (!sidebar.contains(event.target) && !hamburger.contains(event.target)) {
-            closeSidebar();
-        }
-    });
 
         function toggleCreatePost() {
             const createPostForm = document.getElementById('createPostForm');
@@ -260,9 +233,20 @@ function toggleLike(postId, isLike) {
         function toggleCommentForm(postId) {
             const commentForm = document.getElementById(`comment-form-${postId}`);
             if (commentForm.style.display === 'none') {
+                // Hide all other comment forms
+                document.querySelectorAll('.comment-form').forEach(form => {
+                    form.style.display = 'none';
+                });
                 commentForm.style.display = 'block';
             } else {
                 commentForm.style.display = 'none';
+            }
+        }
+
+        function searchPosts() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (query) {
+                window.location.href = `/search?q=${encodeURIComponent(query)}`;
             }
         }
     </script>
