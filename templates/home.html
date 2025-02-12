@@ -99,7 +99,7 @@
                 </form>
             </div>
             {{end}}
-            
+
             <h1 id="postsHeading">
                 {{if .SelectedCategory}}
                 {{.SelectedCategory}}
@@ -121,12 +121,14 @@
                             <i class="fas fa-thumbs-up"></i> Like (<span class="like-count">{{.LikeCount}}</span>)
                         </button>
                         <button class="dislike-button" data-post-id="{{.ID}}" onclick="toggleLike('{{.ID}}', false)">
-                            <i class="fas fa-thumbs-down"></i> Dislike (<span class="dislike-count">{{.DislikeCount}}</span>)
+                            <i class="fas fa-thumbs-down"></i> Dislike (<span
+                                class="dislike-count">{{.DislikeCount}}</span>)
                         </button>
                         <button class="comment-button" onclick="toggleCommentForm('{{.ID}}')">
                             <i class="fas fa-comment"></i> Comment
                         </button>
                     </div>
+                    {{if $.IsLoggedIn}}
                     <div class="comment-form" id="comment-form-{{.ID}}" style="display: none;">
                         <form method="POST" action="/comment">
                             <input type="hidden" name="post_id" value="{{.ID}}">
@@ -134,12 +136,24 @@
                             <button type="submit">Post Comment</button>
                         </form>
                     </div>
+                    {{end}}
+                    <div class="comments-section" id="comments-section-{{.ID}}" style="display: none;">
+                        <h4>Comments:</h4>
+                        {{if .Comments}}
+                        <ul>
+                            {{range .Comments}}
+                            <li><strong>{{.Username}}:</strong> {{.Content}}</li>
+                            {{end}}
+                        </ul>
+                        {{else}}
+                        <p>No comments yet.</p>
+                        {{end}}
+                    </div>
+                    {{end}}
+                    {{else}}
+                    <p>No posts available.</p>
+                    {{end}}
                 </div>
-                {{end}}
-                {{else}}
-                <p>No posts available.</p>
-                {{end}}
-            </div>
         </main>
     </div>
 
@@ -157,39 +171,39 @@
                 },
                 body: `post_id=${postId}&is_like=${isLike}`
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Update the like and dislike counts
-                    const likeCountElement = document.querySelector(`.like-button[data-post-id="${postId}"] .like-count`);
-                    const dislikeCountElement = document.querySelector(`.dislike-button[data-post-id="${postId}"] .dislike-count`);
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update the like and dislike counts
+                        const likeCountElement = document.querySelector(`.like-button[data-post-id="${postId}"] .like-count`);
+                        const dislikeCountElement = document.querySelector(`.dislike-button[data-post-id="${postId}"] .dislike-count`);
 
-                    likeCountElement.textContent = data.like_count;
-                    dislikeCountElement.textContent = data.dislike_count;
+                        likeCountElement.textContent = data.like_count;
+                        dislikeCountElement.textContent = data.dislike_count;
 
-                    // Update button styles
-                    const likeButton = document.querySelector(`.like-button[data-post-id="${postId}"]`);
-                    const dislikeButton = document.querySelector(`.dislike-button[data-post-id="${postId}"]`);
+                        // Update button styles
+                        const likeButton = document.querySelector(`.like-button[data-post-id="${postId}"]`);
+                        const dislikeButton = document.querySelector(`.dislike-button[data-post-id="${postId}"]`);
 
-                    if (isLike) {
-                        likeButton.classList.toggle('active');
-                        dislikeButton.classList.remove('active');
+                        if (isLike) {
+                            likeButton.classList.toggle('active');
+                            dislikeButton.classList.remove('active');
+                        } else {
+                            dislikeButton.classList.toggle('active');
+                            likeButton.classList.remove('active');
+                        }
                     } else {
-                        dislikeButton.classList.toggle('active');
-                        likeButton.classList.remove('active');
+                        console.error('Error toggling like');
+                        alert('Failed to update like/dislike. Please try again.');
                     }
-                } else {
-                    console.error('Error toggling like');
-                    alert('Failed to update like/dislike. Please try again.');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred. Please try again.');
-            })
-            .finally(() => {
-                isProcessing = false; // Reset debounce flag
-            });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                })
+                .finally(() => {
+                    isProcessing = false; // Reset debounce flag
+                });
         }
 
         function toggleSidebar() {
@@ -232,14 +246,19 @@
 
         function toggleCommentForm(postId) {
             const commentForm = document.getElementById(`comment-form-${postId}`);
-            if (commentForm.style.display === 'none') {
-                // Hide all other comment forms
-                document.querySelectorAll('.comment-form').forEach(form => {
-                    form.style.display = 'none';
-                });
-                commentForm.style.display = 'block';
+            const commentsSection = document.getElementById(`comments-section-${postId}`);
+
+            // Toggle the visibility of the comment form and comments section
+            if (commentsSection.style.display === 'none') {
+                commentsSection.style.display = 'block';
+                if (commentForm) {
+                    commentForm.style.display = 'block'; // Show comment form for logged-in users
+                }
             } else {
-                commentForm.style.display = 'none';
+                commentsSection.style.display = 'none';
+                if (commentForm) {
+                    commentForm.style.display = 'none'; // Hide comment form for logged-in users
+                }
             }
         }
 
