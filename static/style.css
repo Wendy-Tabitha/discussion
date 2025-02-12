@@ -737,3 +737,34 @@ main {
         max-width: 250px;
     }
 }
+
+.comments-section {
+    background-color: #ffffff; /* White background for comments section */
+    padding: 15px; /* Padding around the comments */
+    border-radius: 5px; /* Rounded corners */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    margin-top: 10px; /* Space above the comments section */
+}
+
+.comments-section h4 {
+    margin-bottom: 10px; /* Space below the heading */
+    color: var(--primary-color); /* Use primary color for the heading */
+}
+
+.comments-section ul {
+    list-style-type: none; /* Remove default list styling */
+    padding: 0; /* Remove padding */
+}
+
+.comments-section li {
+    padding: 10px; /* Padding for each comment */
+    border-bottom: 1px solid var(--border-color); /* Bottom border for separation */
+}
+
+.comments-section li:last-child {
+    border-bottom: none; /* Remove border for the last comment */
+}
+
+.comments-section strong {
+    color: var(--primary-color); /* Color for the username */
+}

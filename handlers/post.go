@@ -33,6 +33,11 @@ func PostHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Handle POST request (create a new post)
 	if r.Method == http.MethodPost {
+		if userID == "" {
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			return
+		}
+
 		title := r.FormValue("title")
 		content := r.FormValue("content")
 		categories := r.Form["category"] // Get multiple categories
@@ -105,9 +110,7 @@ ORDER BY p.created_at DESC
 	for rows.Next() {
 		var post Post
 		var categories sql.NullString
-		err := rows.Scan(&post.ID, &post.Title, &post.Content, &categories, &post.Username, &post.CreatedAt, &post.LikeCount, &post.DislikeCount)
-		if err != nil {
-			log.Printf("Error scanning post: %v", err)
+		if err := rows.Scan(&post.ID, &post.Title, &post.Content, &categories, &post.Username, &post.CreatedAt, &post.LikeCount, &post.DislikeCount); err != nil {
 			RenderError(w, r, "Error scanning posts", http.StatusInternalServerError, "/post")
 			return
 		}
@@ -116,6 +119,25 @@ ORDER BY p.created_at DESC
 		} else {
 			post.Categories = ""
 		}
+
+		// Fetch comments for the post
+		var comments []Comment
+		commentRows, err := db.Query("SELECT c.id, c.content, u.username FROM comments c JOIN users u ON c.user_id = u.id WHERE c.post_id = ?", post.ID)
+		if err != nil {
+			RenderError(w, r, "Error fetching comments", http.StatusInternalServerError, "/")
+			return
+		}
+		defer commentRows.Close()
+
+		for commentRows.Next() {
+			var comment Comment
+			if err := commentRows.Scan(&comment.ID, &comment.Content, &comment.Username); err != nil {
+				RenderError(w, r, "Error scanning comments", http.StatusInternalServerError, "/")
+				return
+			}
+			comments = append(comments, comment)
+		}
+		post.Comments = comments // Add comments to the post
 		posts = append(posts, post)
 	}
 
