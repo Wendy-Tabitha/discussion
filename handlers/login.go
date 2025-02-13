@@ -25,13 +25,13 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		var user User
 		err := db.QueryRow("SELECT id, password FROM users WHERE email = ?", email).Scan(&user.ID, &user.Password)
 		if err != nil {
-			RenderError(w, r, "Invalid email or password", http.StatusUnauthorized, "/")
+			RenderError(w, r, "Invalid email or password", http.StatusUnauthorized, "/login")
 			return
 		}
 
 		err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 		if err != nil {
-			RenderError(w, r, "Invalid email or password", http.StatusUnauthorized, "/")
+			RenderError(w, r, "Invalid email or password", http.StatusUnauthorized, "/login")
 			return
 		}
 

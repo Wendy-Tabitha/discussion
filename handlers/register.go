@@ -16,14 +16,14 @@ func RegisterHandler(w http.ResponseWriter, r *http.Request) {
 		confirmPassword := r.FormValue("confirm_password")
 
 		if password != confirmPassword {
-			RenderError(w, r, "Passwords do not match", http.StatusBadRequest, "/")
+			RenderError(w, r, "Passwords do not match", http.StatusBadRequest, "/register")
 			return
 		}
 
 		var existingEmail string
 		err := db.QueryRow("SELECT email FROM users WHERE email = ?", email).Scan(&existingEmail)
 		if err == nil {
-			RenderError(w, r, "Email already taken", http.StatusBadRequest, "/")
+			RenderError(w, r, "Email already taken", http.StatusBadRequest, "/register")
 			return
 		}
 
